@@ -122,11 +122,11 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
     
     
     // Read in Tess control shader code
-    //std::string TCS_ShaderCode = readShader(TCS_path);
+    std::string TCS_ShaderCode = readShader(TCS_path);
     
     
     // Read in Tess eval shader code
-    //std::string TES_ShaderCode = readShader(TES_path);
+    std::string TES_ShaderCode = readShader(TES_path);
     
 
     // Read the Fragment Shader code from the file
@@ -140,10 +140,10 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
     compileShader(vertex_file_path, VertexShaderCode, VertexShaderID, Result, &InfoLogLength);
     
     // Compile TCS shader
-    //compileShader(TCS_path, TCS_ShaderCode, TCS_shaderID, Result, &InfoLogLength);
+    compileShader(TCS_path, TCS_ShaderCode, TCS_shaderID, Result, &InfoLogLength);
 
     // Compile TES shader
-    //compileShader(TES_path, TES_ShaderCode, TES_shaderID, Result, &InfoLogLength);
+    compileShader(TES_path, TES_ShaderCode, TES_shaderID, Result, &InfoLogLength);
     
     // Compile Fragment Shader
     compileShader(fragment_file_path, FragmentShaderCode, FragmentShaderID, Result, &InfoLogLength);
@@ -153,8 +153,8 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
     GLuint ProgramID = glCreateProgram();
     glAttachShader(ProgramID, VertexShaderID);
     //add tess shaders
-    //glAttachShader(ProgramID, TCS_shaderID);
-    //glAttachShader(ProgramID, TES_shaderID);
+    glAttachShader(ProgramID, TCS_shaderID);
+    glAttachShader(ProgramID, TES_shaderID);
     glAttachShader(ProgramID, FragmentShaderID);
     glLinkProgram(ProgramID);
 

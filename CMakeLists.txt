@@ -72,6 +72,10 @@ add_executable(playground
 
 	playground/StandardShading.vertexshader
 	playground/StandardShading.fragmentshader
+    playground/TCS
+    playground/TES
+    playground/wireframe.vertexshader
+    playground/wireframe.fragmentshader
 )
 target_link_libraries(playground
 	${ALL_LIBS}
