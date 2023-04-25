@@ -1,5 +1,6 @@
 # CMake entry point
 cmake_minimum_required (VERSION 3.0)
+# project (Silhouette)
 project (Tutorials)
 
 find_package(OpenGL REQUIRED)
@@ -72,8 +73,8 @@ add_executable(playground
 
 	playground/StandardShading.vertexshader
 	playground/StandardShading.fragmentshader
-    playground/TCS
-    playground/TES
+    playground/TCS.shader
+    playground/TES.shader
     playground/wireframe.vertexshader
     playground/wireframe.fragmentshader
 )
