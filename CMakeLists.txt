@@ -61,15 +61,20 @@ add_definitions(
 add_executable(playground 
 	playground/playground.cpp
 	common/shader.cpp
-    	common/shader.hpp
-    	common/controls.cpp
-    	common/controls.hpp
-    	common/texture.cpp
-    	common/texture.hpp
-    	common/objloader.cpp
-    	common/objloader.hpp
-    	common/vboindexer.cpp
-    	common/vboindexer.hpp
+    common/shader.hpp
+    common/controls.cpp
+    common/controls.hpp
+    common/texture.cpp
+    common/texture.hpp
+    common/objloader.cpp
+    common/objloader.hpp
+    common/vboindexer.cpp
+    common/vboindexer.hpp
+    common/vboindexer.hpp
+    common/text2D.hpp
+    common/text2D.cpp
+    common/tangentspace.hpp
+    common/tangentspace.cpp
 
 	playground/StandardShading.vertexshader
 	playground/StandardShading.fragmentshader
