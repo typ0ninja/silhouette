@@ -1,14 +1,14 @@
 #version 330 core
 
 // Interpolated values from the vertex shaders
-in vec2 UV;
-in vec3 Position_worldspace;
-in vec3 EyeDirection_cameraspace;
-in vec3 LightDirection_cameraspace;
+//in vec2 UV;
+//in vec3 Position_worldspace;
+//in vec3 EyeDirection_cameraspace;
+//in vec3 LightDirection_cameraspace;
 
-in vec3 LightDirection_tangentspace;
-in vec3 EyeDirection_tangentspace;
-
+//in vec3 LightDirection_tangentspace;
+//in vec3 EyeDirection_tangentspace;
+in float Height;
 // Ouput data
 out vec3 color;
 
@@ -22,6 +22,7 @@ uniform mat3 MV3x3;
 uniform vec3 LightPosition_worldspace;
 
 void main(){
+    /*
 
     // Light emission properties
     // You probably want to put them as uniforms
@@ -67,5 +68,8 @@ void main(){
         MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
         // Specular : reflective highlight, like a mirror
         MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
+     */
+    
+    color = vec3(1.0, 0.0, 0.0);
 
 }
