@@ -43,7 +43,7 @@ void initModel() {
     glBindVertexArray(ModelVAOID);
 
     // Create and compile our GLSL program from the shaders
-    programID = LoadShaders( "StandardShading.vertexshader", "StandardShading.fragmentshader", "TCS", "TES" );
+    programID = LoadShaders( "StandardShading.vertexshader", "StandardShading.fragmentshader", "TCS.shader", "TES.shader" );
 
     // Get a handle for our "MVP" uniform
     MatrixID = glGetUniformLocation(programID, "MVP");

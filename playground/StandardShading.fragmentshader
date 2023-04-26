@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 // Interpolated values from the vertex shaders
 in vec2 UV;
@@ -16,6 +16,7 @@ uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
 
 void main(){
+    /*
 
 	// Light emission properties
 	// You probably want to put them as uniforms
@@ -66,5 +67,6 @@ void main(){
             MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
     }
     
-
+*/
+    color = vec3(1.0, 0.0, 0.0);
 }
