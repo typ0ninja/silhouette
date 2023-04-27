@@ -29,6 +29,7 @@ GLuint MatrixID;
 GLuint ViewMatrixID;
 GLuint ModelMatrixID;
 GLuint ModelView3x3MatrixID;
+GLuint cameraPosID;
 GLuint DiffuseTexture;
 GLuint NormalTexture;
 GLuint SpecularTexture;
@@ -57,6 +58,7 @@ void initModel() {
     ViewMatrixID = glGetUniformLocation(programID, "V");
     ModelMatrixID = glGetUniformLocation(programID, "M");
     ModelView3x3MatrixID = glGetUniformLocation(programID, "MV3x3");
+    cameraPosID = glGetUniformLocation(programID, "cameraPos");
 
     // Load the texture
     DiffuseTexture = loadDDS("uvmap.DDS");
@@ -140,6 +142,7 @@ void drawModel() {
     glm::mat4 ModelViewMatrix = ViewMatrix * ModelMatrix;
     glm::mat3 ModelView3x3Matrix = glm::mat3(ModelViewMatrix);
     glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+    glm::vec3 cameraPos = getCameraPosition();
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
@@ -148,6 +151,11 @@ void drawModel() {
     glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
     glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
     glUniformMatrix3fv(ModelView3x3MatrixID, 1, GL_FALSE, &ModelView3x3Matrix[0][0]);
+    glUniform3f(cameraPosID, cameraPos.x, cameraPos.y, cameraPos.z);
+
+    
+    //glUniform3fv(uniformLocation, 1, glm::value_ptr(myVec3));
+    
 
     glm::vec3 lightPos = glm::vec3(4,4,4);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
@@ -235,11 +243,11 @@ void drawModel() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     
     //turn on wireframe
-   //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Draw the triangles !
     glDrawElements(
-        GL_TRIANGLES,      // mode
+        GL_PATCHES,      // mode
         indices.size(),    // count
         GL_UNSIGNED_SHORT,   // type
         (void*)0           // element array buffer offset
@@ -310,6 +318,7 @@ int main( void )
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
 
+    initCamera();
     initModel();
 
     // For speed computation
