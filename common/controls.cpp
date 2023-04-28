@@ -19,6 +19,15 @@ bool cntl_baseMeshWf = false;
 float cntl_tess_1 = 8.0;
 float cntl_tess_2 = 4.0;
 
+//uniform struct
+struct MyUniform {
+    float tess_thresh_h;
+    float tess_thresh_l;
+    float def_amt;
+    int tess_cnt_h;
+    int tess_cnt_l;
+};
+
 
 
 glm::mat4 getViewMatrix(){
@@ -113,6 +122,7 @@ void computeMatricesFromInputs(){
 	}
     // Toggle Wireframe on model
     if (glfwGetKey( window, GLFW_KEY_1 ) == GLFW_PRESS){
+        //negative edge for toggle
         if (glfwGetKey( window, GLFW_KEY_1 ) == GLFW_RELEASE){
             if(cntl_wireframe){
                 cntl_wireframe = false;
