@@ -22,70 +22,75 @@ using namespace glm;
 #include <common/vboindexer.hpp>
 #include <common/tangentspace.hpp>
 
-//Globals for model shader
-GLuint ModelVAOID;
-GLuint programID;
-GLuint MatrixID;
-GLuint ViewMatrixID;
-GLuint ModelMatrixID;
-GLuint ModelView3x3MatrixID;
-GLuint cameraPosID;
-GLuint DiffuseTexture;
-GLuint NormalTexture;
-GLuint SpecularTexture;
-GLuint DiffuseTextureID;
-GLuint NormalTextureID;
-GLuint SpecularTextureID;
-GLuint LightID;
-GLuint vertexbuffer;
-GLuint uvbuffer;
-GLuint normalbuffer;
-GLuint tangentbuffer;
-GLuint bitangentbuffer;
-GLuint elementbuffer;
-std::vector<unsigned short> indices;
+struct shader_buff{
+    //Globals for model shader
+    GLuint ModelVAOID;
+    GLuint programID;
+    GLuint MatrixID;
+    GLuint ViewMatrixID;
+    GLuint ModelMatrixID;
+    GLuint ModelView3x3MatrixID;
+    GLuint cameraPosID;
+    GLuint DiffuseTexture;
+    GLuint NormalTexture;
+    GLuint SpecularTexture;
+    GLuint DiffuseTextureID;
+    GLuint NormalTextureID;
+    GLuint SpecularTextureID;
+    GLuint LightID;
+    GLuint vertexbuffer;
+    GLuint uvbuffer;
+    GLuint normalbuffer;
+    GLuint tangentbuffer;
+    GLuint bitangentbuffer;
+    GLuint elementbuffer;
+    std::vector<unsigned short> indices;
 
-//uniform buffer object for params
-GLuint paramStructID;
-GLuint paramStructbuffer;
-uni_params curParam;
+    //uniform buffer object for params
+    GLuint paramStructID;
+    GLuint paramStructbuffer;
+    uni_params curParam;
+};
+
+shader_buff tess_items;
+shader_buff reference_items;
 
 
 //Initialize the shaders for the model
 void initModel() {
-    glGenVertexArrays(1, &ModelVAOID);
-    glBindVertexArray(ModelVAOID);
+    glGenVertexArrays(1, &tess_items.ModelVAOID);
+    glBindVertexArray(tess_items.ModelVAOID);
 
     // Create and compile our GLSL program from the shaders
-    programID = LoadShaders( "StandardShading.vertexshader", "StandardShading.fragmentshader", "TCS.shader", "TES.shader" );
+    tess_items.programID = LoadShaders( "StandardShading.vertexshader", "StandardShading.fragmentshader", "TCS.shader", "TES.shader" );
 
     // Get a handle for our "MVP" uniform
-    MatrixID = glGetUniformLocation(programID, "MVP");
-    ViewMatrixID = glGetUniformLocation(programID, "V");
-    ModelMatrixID = glGetUniformLocation(programID, "M");
-    ModelView3x3MatrixID = glGetUniformLocation(programID, "MV3x3");
-    cameraPosID = glGetUniformLocation(programID, "cameraPos");
+    tess_items.MatrixID = glGetUniformLocation(tess_items.programID, "MVP");
+    tess_items.ViewMatrixID = glGetUniformLocation(tess_items.programID, "V");
+    tess_items.ModelMatrixID = glGetUniformLocation(tess_items.programID, "M");
+    tess_items.ModelView3x3MatrixID = glGetUniformLocation(tess_items.programID, "MV3x3");
+    tess_items.cameraPosID = glGetUniformLocation(tess_items.programID, "cameraPos");
     
     //uniform struct stuff
     // Bind the uniform block to a binding point
     GLuint bindingPoint = 0;
-    paramStructID = glGetUniformBlockIndex(programID, "uni_params");
-    glUniformBlockBinding(programID, paramStructID, bindingPoint);
+    tess_items.paramStructID = glGetUniformBlockIndex(tess_items.programID, "uni_params");
+    glUniformBlockBinding(tess_items.programID, tess_items.paramStructID, bindingPoint);
 
     // Create a buffer object and allocate memory for the uniform block data
     //GLuint ubo;
-    glGenBuffers(1, &paramStructbuffer);
-    glBindBuffer(GL_UNIFORM_BUFFER, paramStructbuffer);
-    curParam = getParam();
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(uni_params), &curParam, GL_STATIC_DRAW);
+    glGenBuffers(1, &tess_items.paramStructbuffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, tess_items.paramStructbuffer);
+    tess_items.curParam = getParam();
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(uni_params), &tess_items.curParam, GL_STATIC_DRAW);
 
     // Bind the buffer object to the binding point
-    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, paramStructbuffer);
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, tess_items.paramStructbuffer);
     
     // Load the texture
-    DiffuseTexture = loadDDS("uvmap.DDS");
-    NormalTexture = loadBMP_custom("wavenormal.bmp");
-    SpecularTexture = loadDDS("specular.DDS");
+    tess_items.DiffuseTexture = loadDDS("uvmap.DDS");
+    tess_items.NormalTexture = loadBMP_custom("wavenormal.bmp");
+    tess_items.SpecularTexture = loadDDS("specular.DDS");
     
     
     /*
@@ -96,9 +101,9 @@ void initModel() {
      */
     
     // Get a handle for our "myTextureSampler" uniform
-    DiffuseTextureID  = glGetUniformLocation(programID, "DiffuseTextureSampler");
-    NormalTextureID  = glGetUniformLocation(programID, "NormalTextureSampler");
-    SpecularTextureID  = glGetUniformLocation(programID, "SpecularTextureSampler");
+    tess_items.DiffuseTextureID  = glGetUniformLocation(tess_items.programID, "DiffuseTextureSampler");
+    tess_items.NormalTextureID  = glGetUniformLocation(tess_items.programID, "NormalTextureSampler");
+    tess_items.SpecularTextureID  = glGetUniformLocation(tess_items.programID, "SpecularTextureSampler");
 
     // Read our .obj file
     std::vector<glm::vec3> vertices;
@@ -122,74 +127,91 @@ void initModel() {
     std::vector<glm::vec3> indexed_bitangents;
     indexVBO_TBN(
         vertices, uvs, normals, tangents, bitangents,
-        indices, indexed_vertices, indexed_uvs, indexed_normals, indexed_tangents, indexed_bitangents
+                 tess_items.indices, indexed_vertices, indexed_uvs, indexed_normals, indexed_tangents, indexed_bitangents
     );
 
     // Load it into a VBO
 
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glGenBuffers(1, &tess_items.vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
 
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glGenBuffers(1, &tess_items.uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.uvbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_uvs.size() * sizeof(glm::vec2), &indexed_uvs[0], GL_STATIC_DRAW);
 
-    glGenBuffers(1, &normalbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glGenBuffers(1, &tess_items.normalbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.normalbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_normals.size() * sizeof(glm::vec3), &indexed_normals[0], GL_STATIC_DRAW);
     
-    glGenBuffers(1, &tangentbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, tangentbuffer);
+    glGenBuffers(1, &tess_items.tangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.tangentbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_tangents.size() * sizeof(glm::vec3), &indexed_tangents[0], GL_STATIC_DRAW);
 
-    glGenBuffers(1, &bitangentbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, bitangentbuffer);
+    glGenBuffers(1, &tess_items.bitangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.bitangentbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_bitangents.size() * sizeof(glm::vec3), &indexed_bitangents[0], GL_STATIC_DRAW);
 
     // Generate a buffer for the indices as well
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
+    glGenBuffers(1, &tess_items.elementbuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tess_items.elementbuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, tess_items.indices.size() * sizeof(unsigned short), &tess_items.indices[0] , GL_STATIC_DRAW);
 
     // Get a handle for our "LightPosition" uniform
-    LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
+    tess_items.LightID = glGetUniformLocation(tess_items.programID, "LightPosition_worldspace");
     
     glBindVertexArray(0);
 }
 
-//init reference model
-void initReference() {
-    glGenVertexArrays(1, &ModelVAOID);
-    glBindVertexArray(ModelVAOID);
+
+//Initialize the shaders for the model
+void initRef() {
+    glGenVertexArrays(1, &reference_items.ModelVAOID);
+    glBindVertexArray(reference_items.ModelVAOID);
 
     // Create and compile our GLSL program from the shaders
-    programID = LoadShaders( "wireframe.vertexshader", "wireframe.fragmentshader");
+    reference_items.programID = LoadShaders( "StandardShading.vertexshader", "StandardShading.fragmentshader", "TCS.shader", "TES.shader" );
 
     // Get a handle for our "MVP" uniform
-    MatrixID = glGetUniformLocation(programID, "MVP");
-    ViewMatrixID = glGetUniformLocation(programID, "V");
-    ModelMatrixID = glGetUniformLocation(programID, "M");
-    ModelView3x3MatrixID = glGetUniformLocation(programID, "MV3x3");
-    cameraPosID = glGetUniformLocation(programID, "cameraPos");
+    reference_items.MatrixID = glGetUniformLocation(reference_items.programID, "MVP");
+    reference_items.ViewMatrixID = glGetUniformLocation(reference_items.programID, "V");
+    reference_items.ModelMatrixID = glGetUniformLocation(reference_items.programID, "M");
+    reference_items.ModelView3x3MatrixID = glGetUniformLocation(reference_items.programID, "MV3x3");
+    reference_items.cameraPosID = glGetUniformLocation(reference_items.programID, "cameraPos");
+    
+    //uniform struct stuff
+    // Bind the uniform block to a binding point
+    GLuint bindingPoint = 0;
+    reference_items.paramStructID = glGetUniformBlockIndex(reference_items.programID, "uni_params");
+    glUniformBlockBinding(reference_items.programID, reference_items.paramStructID, bindingPoint);
+
+    // Create a buffer object and allocate memory for the uniform block data
+    //GLuint ubo;
+    glGenBuffers(1, &reference_items.paramStructbuffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, reference_items.paramStructbuffer);
+    reference_items.curParam = getParam();
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(uni_params), &reference_items.curParam, GL_STATIC_DRAW);
+
+    // Bind the buffer object to the binding point
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, reference_items.paramStructbuffer);
     
     // Load the texture
-    DiffuseTexture = loadDDS("uvmap.DDS");
-    NormalTexture = loadBMP_custom("wavenormal.bmp");
-    SpecularTexture = loadDDS("specular.DDS");
+    reference_items.DiffuseTexture = loadDDS("uvmap.DDS");
+    reference_items.NormalTexture = loadBMP_custom("wavenormal.bmp");
+    reference_items.SpecularTexture = loadDDS("specular.DDS");
     
     
-    /*
+    
     // Load the texture
-    DiffuseTexture = loadDDS("Barrel_AlbedoTransparency.DDS");
-    NormalTexture = loadBMP_custom("Barrel_Normal.bmp");
-    SpecularTexture = loadDDS("Barrel_MetallicSmoothness.DDS");
-     */
+    //DiffuseTexture = loadDDS("Barrel_AlbedoTransparency.DDS");
+    //NormalTexture = loadBMP_custom("Barrel_Normal.bmp");
+    //SpecularTexture = loadDDS("Barrel_MetallicSmoothness.DDS");
+     
     
     // Get a handle for our "myTextureSampler" uniform
-    DiffuseTextureID  = glGetUniformLocation(programID, "DiffuseTextureSampler");
-    NormalTextureID  = glGetUniformLocation(programID, "NormalTextureSampler");
-    SpecularTextureID  = glGetUniformLocation(programID, "SpecularTextureSampler");
+    reference_items.DiffuseTextureID  = glGetUniformLocation(reference_items.programID, "DiffuseTextureSampler");
+    reference_items.NormalTextureID  = glGetUniformLocation(reference_items.programID, "NormalTextureSampler");
+    reference_items.SpecularTextureID  = glGetUniformLocation(reference_items.programID, "SpecularTextureSampler");
 
     // Read our .obj file
     std::vector<glm::vec3> vertices;
@@ -213,49 +235,49 @@ void initReference() {
     std::vector<glm::vec3> indexed_bitangents;
     indexVBO_TBN(
         vertices, uvs, normals, tangents, bitangents,
-        indices, indexed_vertices, indexed_uvs, indexed_normals, indexed_tangents, indexed_bitangents
+                 reference_items.indices, indexed_vertices, indexed_uvs, indexed_normals, indexed_tangents, indexed_bitangents
     );
-    
 
     // Load it into a VBO
 
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glGenBuffers(1, &reference_items.vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
 
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glGenBuffers(1, &reference_items.uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.uvbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_uvs.size() * sizeof(glm::vec2), &indexed_uvs[0], GL_STATIC_DRAW);
 
-    glGenBuffers(1, &normalbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glGenBuffers(1, &reference_items.normalbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.normalbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_normals.size() * sizeof(glm::vec3), &indexed_normals[0], GL_STATIC_DRAW);
     
-    glGenBuffers(1, &tangentbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, tangentbuffer);
+    glGenBuffers(1, &reference_items.tangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.tangentbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_tangents.size() * sizeof(glm::vec3), &indexed_tangents[0], GL_STATIC_DRAW);
 
-    glGenBuffers(1, &bitangentbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, bitangentbuffer);
+    glGenBuffers(1, &reference_items.bitangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.bitangentbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_bitangents.size() * sizeof(glm::vec3), &indexed_bitangents[0], GL_STATIC_DRAW);
 
     // Generate a buffer for the indices as well
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
+    glGenBuffers(1, &reference_items.elementbuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, reference_items.elementbuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, reference_items.indices.size() * sizeof(unsigned short), &reference_items.indices[0] , GL_STATIC_DRAW);
 
     // Get a handle for our "LightPosition" uniform
-    LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
+    reference_items.LightID = glGetUniformLocation(reference_items.programID, "LightPosition_worldspace");
     
     glBindVertexArray(0);
 }
+
 
 //Use the shaders to draw the model
 void drawModel() {
-    glBindVertexArray(ModelVAOID);
+    glBindVertexArray(tess_items.ModelVAOID);
 
     // Use our shader
-    glUseProgram(programID);
+    glUseProgram(tess_items.programID);
 
     // Compute the MVP matrix from keyboard and mouse input
     computeMatricesFromInputs();
@@ -269,44 +291,44 @@ void drawModel() {
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
-    glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-    glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-    glUniformMatrix3fv(ModelView3x3MatrixID, 1, GL_FALSE, &ModelView3x3Matrix[0][0]);
-    glUniform3f(cameraPosID, cameraPos.x, cameraPos.y, cameraPos.z);
+    glUniformMatrix4fv(tess_items.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(tess_items.ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+    glUniformMatrix4fv(tess_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+    glUniformMatrix4fv(tess_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+    glUniformMatrix3fv(tess_items.ModelView3x3MatrixID, 1, GL_FALSE, &ModelView3x3Matrix[0][0]);
+    glUniform3f(tess_items.cameraPosID, cameraPos.x, cameraPos.y, cameraPos.z);
 
     
     //glUniform3fv(uniformLocation, 1, glm::value_ptr(myVec3));
     
 
     glm::vec3 lightPos = glm::vec3(4,4,4);
-    glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(tess_items.LightID, lightPos.x, lightPos.y, lightPos.z);
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, DiffuseTexture);
+    glBindTexture(GL_TEXTURE_2D, tess_items.DiffuseTexture);
     // Set our "myTextureSampler" sampler to use Texture Unit 0
-    glUniform1i(DiffuseTextureID, 0);
+    glUniform1i(tess_items.DiffuseTextureID, 0);
     
     // Bind our normal texture in Texture Unit 1
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, NormalTexture);
+    glBindTexture(GL_TEXTURE_2D, tess_items.NormalTexture);
     // Set our "NormalTextureSampler" sampler to use Texture Unit 1
-    glUniform1i(NormalTextureID, 1);
+    glUniform1i(tess_items.NormalTextureID, 1);
     
     // Bind our specular texture in Texture Unit 2
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, SpecularTexture);
+    glBindTexture(GL_TEXTURE_2D, tess_items.SpecularTexture);
     // Set our "SpecularTextureSampler" sampler to use Texture Unit 2
-    glUniform1i(SpecularTextureID, 2);
+    glUniform1i(tess_items.SpecularTextureID, 2);
     
     
     //update input vals
-    curParam = getParam();
+    tess_items.curParam = getParam();
     
     // Bind the buffer object to the binding point
-    glBindBuffer(GL_UNIFORM_BUFFER, paramStructbuffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, tess_items.paramStructbuffer);
     
     // Map the buffer memory to a pointer that can be written to
     GLvoid* p = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(uni_params), GL_MAP_WRITE_BIT);
@@ -317,12 +339,12 @@ void drawModel() {
     if(ubo_data == NULL){
         printf("null ubo data");
     }
-    ubo_data->tess_thresh_h = curParam.tess_thresh_h;
+    ubo_data->tess_thresh_h = tess_items.curParam.tess_thresh_h;
     
-    ubo_data->tess_thresh_l = curParam.tess_thresh_l;
-    ubo_data->def_amt = curParam.def_amt;
-    ubo_data->tess_cnt_h = curParam.tess_cnt_h;
-    ubo_data->tess_cnt_l = curParam.tess_cnt_l;
+    ubo_data->tess_thresh_l = tess_items.curParam.tess_thresh_l;
+    ubo_data->def_amt = tess_items.curParam.def_amt;
+    ubo_data->tess_cnt_h = tess_items.curParam.tess_cnt_h;
+    ubo_data->tess_cnt_l = tess_items.curParam.tess_cnt_l;
     
     glUnmapBuffer(GL_UNIFORM_BUFFER);
      
@@ -330,7 +352,7 @@ void drawModel() {
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.vertexbuffer);
     glVertexAttribPointer(
         0,                  // attribute
         3,                  // size
@@ -342,7 +364,7 @@ void drawModel() {
 
     // 2nd attribute buffer : UVs
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.uvbuffer);
     glVertexAttribPointer(
         1,                                // attribute
         2,                                // size
@@ -354,7 +376,7 @@ void drawModel() {
 
     // 3rd attribute buffer : normals
     glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.normalbuffer);
     glVertexAttribPointer(
         2,                                // attribute
         3,                                // size
@@ -366,7 +388,7 @@ void drawModel() {
     
     // 4th attribute buffer : tangents
     glEnableVertexAttribArray(3);
-    glBindBuffer(GL_ARRAY_BUFFER, tangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.tangentbuffer);
     glVertexAttribPointer(
         3,                                // attribute
         3,                                // size
@@ -378,7 +400,7 @@ void drawModel() {
 
     // 5th attribute buffer : bitangents
     glEnableVertexAttribArray(4);
-    glBindBuffer(GL_ARRAY_BUFFER, bitangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tess_items.bitangentbuffer);
     glVertexAttribPointer(
         4,                                // attribute
         3,                                // size
@@ -389,7 +411,7 @@ void drawModel() {
     );
 
     // Index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, tess_items.elementbuffer);
     
     if(getWFstatus()){
         //turn on wireframe
@@ -401,7 +423,7 @@ void drawModel() {
     // Draw the triangles !
     glDrawElements(
         GL_PATCHES,      // mode
-        indices.size(),    // count
+        tess_items.indices.size(),    // count
         GL_UNSIGNED_SHORT,   // type
         (void*)0           // element array buffer offset
     );
@@ -416,12 +438,13 @@ void drawModel() {
 
 }
 
-//draw reference
+
+//Use the shaders to draw the model
 void drawReference() {
-    glBindVertexArray(ModelVAOID);
+    glBindVertexArray(reference_items.ModelVAOID);
 
     // Use our shader
-    glUseProgram(programID);
+    glUseProgram(reference_items.programID);
 
     // Compute the MVP matrix from keyboard and mouse input
     computeMatricesFromInputs();
@@ -435,42 +458,68 @@ void drawReference() {
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
-    glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-    glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-    glUniformMatrix3fv(ModelView3x3MatrixID, 1, GL_FALSE, &ModelView3x3Matrix[0][0]);
-    glUniform3f(cameraPosID, cameraPos.x, cameraPos.y, cameraPos.z);
+    glUniformMatrix4fv(reference_items.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(reference_items.ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+    glUniformMatrix4fv(reference_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+    glUniformMatrix4fv(reference_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+    glUniformMatrix3fv(reference_items.ModelView3x3MatrixID, 1, GL_FALSE, &ModelView3x3Matrix[0][0]);
+    glUniform3f(reference_items.cameraPosID, cameraPos.x, cameraPos.y, cameraPos.z);
 
     
     //glUniform3fv(uniformLocation, 1, glm::value_ptr(myVec3));
     
 
     glm::vec3 lightPos = glm::vec3(4,4,4);
-    glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(reference_items.LightID, lightPos.x, lightPos.y, lightPos.z);
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, DiffuseTexture);
+    glBindTexture(GL_TEXTURE_2D, reference_items.DiffuseTexture);
     // Set our "myTextureSampler" sampler to use Texture Unit 0
-    glUniform1i(DiffuseTextureID, 0);
+    glUniform1i(reference_items.DiffuseTextureID, 0);
     
     // Bind our normal texture in Texture Unit 1
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, NormalTexture);
+    glBindTexture(GL_TEXTURE_2D, reference_items.NormalTexture);
     // Set our "NormalTextureSampler" sampler to use Texture Unit 1
-    glUniform1i(NormalTextureID, 1);
+    glUniform1i(reference_items.NormalTextureID, 1);
     
     // Bind our specular texture in Texture Unit 2
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, SpecularTexture);
+    glBindTexture(GL_TEXTURE_2D, reference_items.SpecularTexture);
     // Set our "SpecularTextureSampler" sampler to use Texture Unit 2
-    glUniform1i(SpecularTextureID, 2);
+    glUniform1i(reference_items.SpecularTextureID, 2);
+    
+    
+    //update input vals
+    reference_items.curParam = getParam();
+    
+    // Bind the buffer object to the binding point
+    glBindBuffer(GL_UNIFORM_BUFFER, reference_items.paramStructbuffer);
+    
+    // Map the buffer memory to a pointer that can be written to
+    GLvoid* p = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(uni_params), GL_MAP_WRITE_BIT);
+    if(p == NULL){
+        printf("P is null");
+    }
+    uni_params* ubo_data = static_cast<uni_params*>(p);
+    if(ubo_data == NULL){
+        printf("null ubo data");
+    }
+    ubo_data->tess_thresh_h = reference_items.curParam.tess_thresh_h;
+    
+    ubo_data->tess_thresh_l = reference_items.curParam.tess_thresh_l;
+    ubo_data->def_amt = reference_items.curParam.def_amt;
+    ubo_data->tess_cnt_h = reference_items.curParam.tess_cnt_h;
+    ubo_data->tess_cnt_l = reference_items.curParam.tess_cnt_l;
+    
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+     
 
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.vertexbuffer);
     glVertexAttribPointer(
         0,                  // attribute
         3,                  // size
@@ -482,7 +531,7 @@ void drawReference() {
 
     // 2nd attribute buffer : UVs
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.uvbuffer);
     glVertexAttribPointer(
         1,                                // attribute
         2,                                // size
@@ -494,7 +543,7 @@ void drawReference() {
 
     // 3rd attribute buffer : normals
     glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.normalbuffer);
     glVertexAttribPointer(
         2,                                // attribute
         3,                                // size
@@ -506,7 +555,7 @@ void drawReference() {
     
     // 4th attribute buffer : tangents
     glEnableVertexAttribArray(3);
-    glBindBuffer(GL_ARRAY_BUFFER, tangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.tangentbuffer);
     glVertexAttribPointer(
         3,                                // attribute
         3,                                // size
@@ -518,7 +567,7 @@ void drawReference() {
 
     // 5th attribute buffer : bitangents
     glEnableVertexAttribArray(4);
-    glBindBuffer(GL_ARRAY_BUFFER, bitangentbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, reference_items.bitangentbuffer);
     glVertexAttribPointer(
         4,                                // attribute
         3,                                // size
@@ -529,7 +578,7 @@ void drawReference() {
     );
 
     // Index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, reference_items.elementbuffer);
     
     if(getWFstatus()){
         //turn on wireframe
@@ -537,12 +586,11 @@ void drawReference() {
     } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-    
 
     // Draw the triangles !
     glDrawElements(
         GL_PATCHES,      // mode
-        indices.size(),    // count
+        reference_items.indices.size(),    // count
         GL_UNSIGNED_SHORT,   // type
         (void*)0           // element array buffer offset
     );
@@ -645,17 +693,17 @@ int main( void )
            glfwWindowShouldClose(window) == 0 );
 
     // Cleanup VBO and shader
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &uvbuffer);
-    glDeleteBuffers(1, &normalbuffer);
-    glDeleteBuffers(1, &tangentbuffer);
-    glDeleteBuffers(1, &bitangentbuffer);
-    glDeleteBuffers(1, &elementbuffer);
-    glDeleteProgram(programID);
-    glDeleteTextures(1, &DiffuseTexture);
-    glDeleteTextures(1, &NormalTexture);
-    glDeleteTextures(1, &SpecularTexture);
-    glDeleteVertexArrays(1, &ModelVAOID);
+    glDeleteBuffers(1, &reference_items.vertexbuffer);
+    glDeleteBuffers(1, &reference_items.uvbuffer);
+    glDeleteBuffers(1, &reference_items.normalbuffer);
+    glDeleteBuffers(1, &reference_items.tangentbuffer);
+    glDeleteBuffers(1, &reference_items.bitangentbuffer);
+    glDeleteBuffers(1, &reference_items.elementbuffer);
+    glDeleteProgram(reference_items.programID);
+    glDeleteTextures(1, &reference_items.DiffuseTexture);
+    glDeleteTextures(1, &reference_items.NormalTexture);
+    glDeleteTextures(1, &reference_items.SpecularTexture);
+    glDeleteVertexArrays(1, &reference_items.ModelVAOID);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
