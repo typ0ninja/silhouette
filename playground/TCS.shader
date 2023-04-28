@@ -6,6 +6,14 @@
 layout (vertices=3) out;
 //layout (vertices=4) out;
 
+uniform uni_params {
+    float tess_thresh_h;
+    float tess_thresh_l;
+    float def_amt;
+    int tess_cnt_h;
+    int tess_cnt_l;
+} uni_params_block;
+
 in vec3 Position_worldspace_vt[];
 in vec3 LightDirection_tangentspace_vt[];
 in vec3 EyeDirection_tangentspace_vt[];
@@ -61,7 +69,7 @@ void main()
         //gl_TessLevelInner[2] = 1;
          */
         
-        if(dot <= 0 && dot >= -.35){
+        if(dot <= 0 && dot >= uni_params_block.tess_thresh_h){
             gl_TessLevelOuter[0] = 8;
             gl_TessLevelOuter[1] = 8;
             gl_TessLevelOuter[2] = 8;
@@ -70,7 +78,7 @@ void main()
             gl_TessLevelInner[0] = 8;
             gl_TessLevelInner[1] = 8;
             //gl_TessLevelInner[2] = 1;
-        } else if (dot < -.35 && dot >= -.6) {
+        } else if (dot < uni_params_block.tess_thresh_h && dot >= uni_params_block.tess_thresh_l) {
             gl_TessLevelOuter[0] = 4;
             gl_TessLevelOuter[1] = 4;
             gl_TessLevelOuter[2] = 4;

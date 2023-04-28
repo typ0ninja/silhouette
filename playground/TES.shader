@@ -11,6 +11,14 @@ uniform mat4 view;            // the view matrix
 uniform mat4 projection;      // the projection matrix
  */
 
+uniform uni_params {
+    float tess_thresh_h;
+    float tess_thresh_l;
+    float def_amt;
+    int tess_cnt_h;
+    int tess_cnt_l;
+} uni_params_block;
+
 uniform mat4 MVP;
 uniform mat4 V;
 uniform mat4 M;
@@ -85,7 +93,7 @@ void main()
         EyeDirection_tangentspace_tcs[1], EyeDirection_tangentspace_tcs[2], barycentric);
     
     // displace point along normal
-    p -= normal * height * 0.1;
+    p -= normal * height * uni_params_block.def_amt;
 
     // ----------------------------------------------------------------------
     // output patch point position in clip space

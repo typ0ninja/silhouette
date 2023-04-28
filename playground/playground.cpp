@@ -46,7 +46,9 @@ GLuint elementbuffer;
 std::vector<unsigned short> indices;
 
 //uniform buffer object for params
-GLuint paramUBO;
+GLuint paramStructID;
+GLuint paramStructbuffer;
+uni_params curParam;
 
 
 //Initialize the shaders for the model
@@ -63,6 +65,22 @@ void initModel() {
     ModelMatrixID = glGetUniformLocation(programID, "M");
     ModelView3x3MatrixID = glGetUniformLocation(programID, "MV3x3");
     cameraPosID = glGetUniformLocation(programID, "cameraPos");
+    
+    //uniform struct stuff
+    // Bind the uniform block to a binding point
+    GLuint bindingPoint = 0;
+    paramStructID = glGetUniformBlockIndex(programID, "uni_params");
+    glUniformBlockBinding(programID, paramStructID, bindingPoint);
+
+    // Create a buffer object and allocate memory for the uniform block data
+    //GLuint ubo;
+    glGenBuffers(1, &paramStructbuffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, paramStructbuffer);
+    curParam = getParam();
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(uni_params), &curParam, GL_STATIC_DRAW);
+
+    // Bind the buffer object to the binding point
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, paramStructbuffer);
     
     // Load the texture
     DiffuseTexture = loadDDS("uvmap.DDS");
@@ -197,6 +215,7 @@ void initReference() {
         vertices, uvs, normals, tangents, bitangents,
         indices, indexed_vertices, indexed_uvs, indexed_normals, indexed_tangents, indexed_bitangents
     );
+    
 
     // Load it into a VBO
 
@@ -281,6 +300,32 @@ void drawModel() {
     glBindTexture(GL_TEXTURE_2D, SpecularTexture);
     // Set our "SpecularTextureSampler" sampler to use Texture Unit 2
     glUniform1i(SpecularTextureID, 2);
+    
+    
+    //update input vals
+    curParam = getParam();
+    
+    // Bind the buffer object to the binding point
+    glBindBuffer(GL_UNIFORM_BUFFER, paramStructbuffer);
+    
+    // Map the buffer memory to a pointer that can be written to
+    GLvoid* p = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(uni_params), GL_MAP_WRITE_BIT);
+    if(p == NULL){
+        printf("P is null");
+    }
+    uni_params* ubo_data = static_cast<uni_params*>(p);
+    if(ubo_data == NULL){
+        printf("null ubo data");
+    }
+    ubo_data->tess_thresh_h = curParam.tess_thresh_h;
+    
+    ubo_data->tess_thresh_l = curParam.tess_thresh_l;
+    ubo_data->def_amt = curParam.def_amt;
+    ubo_data->tess_cnt_h = curParam.tess_cnt_h;
+    ubo_data->tess_cnt_l = curParam.tess_cnt_l;
+    
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+     
 
 
     // 1rst attribute buffer : vertices
@@ -352,7 +397,6 @@ void drawModel() {
     } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-    
 
     // Draw the triangles !
     glDrawElements(

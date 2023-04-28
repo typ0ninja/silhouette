@@ -16,23 +16,12 @@ glm::vec3 position;
 //uniform parameters
 bool cntl_wireframe = false;
 bool cntl_baseMeshWf = false;
-float cntl_tess_1 = 8.0;
-float cntl_tess_2 = 4.0;
-
-//uniform struct
-struct MyUniform {
-    float tess_thresh_h;
-    float tess_thresh_l;
-    float def_amt;
-    int tess_cnt_h;
-    int tess_cnt_l;
-};
-
-
+uni_params sh_params = { -.35, -.6, .1, 8, 4 };
 
 glm::mat4 getViewMatrix(){
 	return ViewMatrix;
 }
+
 glm::mat4 getProjectionMatrix(){
 	return ProjectionMatrix;
 }
@@ -53,6 +42,10 @@ bool getShowBaseModel(){
     return cntl_baseMeshWf;
 }
 
+uni_params getParam(){
+    return sh_params;
+}
+
 // Initial position : on +Z
 //glm::vec3 position = glm::vec3( 0, 0, 5 );
 // Initial horizontal angle : toward -Z
@@ -64,7 +57,6 @@ float initialFoV = 45.0f;
 
 float speed = 3.0f; // 3 units / second
 float mouseSpeed = 0.003f;
-
 
 
 void computeMatricesFromInputs(){
@@ -129,6 +121,61 @@ void computeMatricesFromInputs(){
             } else {
                 cntl_wireframe = true;
             }
+        }
+    }
+    
+    // increase outer tess angle
+    if (glfwGetKey( window, GLFW_KEY_K ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_K ) == GLFW_RELEASE){
+            
+            sh_params.tess_thresh_h += .04;
+        }
+    }
+    
+    // decrease outer tess angle
+    if (glfwGetKey( window, GLFW_KEY_L ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_L ) == GLFW_RELEASE){
+            
+            sh_params.tess_thresh_h -= .04;
+        }
+    }
+    
+    
+    // increase inner tess angle
+    if (glfwGetKey( window, GLFW_KEY_P ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_P ) == GLFW_RELEASE){
+            
+            sh_params.tess_thresh_l += .04;
+        }
+    }
+    
+    // decrease inner tess angle
+    if (glfwGetKey( window, GLFW_KEY_O ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_O ) == GLFW_RELEASE){
+            
+            sh_params.tess_thresh_l -= .04;
+        }
+    }
+    
+    // increase deformation amount
+    if (glfwGetKey( window, GLFW_KEY_EQUAL ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_EQUAL ) == GLFW_RELEASE){
+            
+            sh_params.def_amt += .04;
+        }
+    }
+    
+    // decrease deformation amount
+    if (glfwGetKey( window, GLFW_KEY_MINUS ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_MINUS ) == GLFW_RELEASE){
+            
+            sh_params.def_amt -= .04;
         }
     }
 
