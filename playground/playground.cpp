@@ -251,8 +251,13 @@ void drawModel() {
     // Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     
-    //turn on wireframe
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if(getWFstatus()){
+        //turn on wireframe
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+    
 
     // Draw the triangles !
     glDrawElements(

@@ -111,6 +111,16 @@ void computeMatricesFromInputs(){
 	if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS){
 		position -= right * deltaTime * speed;
 	}
+    // Toggle Wireframe on model
+    if (glfwGetKey( window, GLFW_KEY_1 ) == GLFW_PRESS){
+        if (glfwGetKey( window, GLFW_KEY_1 ) == GLFW_RELEASE){
+            if(cntl_wireframe){
+                cntl_wireframe = false;
+            } else {
+                cntl_wireframe = true;
+            }
+        }
+    }
 
 	float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
 
