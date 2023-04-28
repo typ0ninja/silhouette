@@ -59,11 +59,19 @@ void initModel() {
     ModelMatrixID = glGetUniformLocation(programID, "M");
     ModelView3x3MatrixID = glGetUniformLocation(programID, "MV3x3");
     cameraPosID = glGetUniformLocation(programID, "cameraPos");
-
+    
     // Load the texture
     DiffuseTexture = loadDDS("uvmap.DDS");
     NormalTexture = loadBMP_custom("wavenormal.bmp");
     SpecularTexture = loadDDS("specular.DDS");
+    
+    
+    /*
+    // Load the texture
+    DiffuseTexture = loadDDS("Barrel_AlbedoTransparency.DDS");
+    NormalTexture = loadBMP_custom("Barrel_Normal.bmp");
+    SpecularTexture = loadDDS("Barrel_MetallicSmoothness.DDS");
+     */
     
     // Get a handle for our "myTextureSampler" uniform
     DiffuseTextureID  = glGetUniformLocation(programID, "DiffuseTextureSampler");
@@ -76,6 +84,7 @@ void initModel() {
     std::vector<glm::vec3> normals;
     //bool res = loadAssImp("subd_sphere.obj", indices, vertices, uvs, normals);
     bool res = loadOBJ("subd_sphere.obj", vertices, uvs, normals);
+    //bool res = loadOBJ("barrel_obj.obj", vertices, uvs, normals);
     std::vector<glm::vec3> tangents;
     std::vector<glm::vec3> bitangents;
     computeTangentBasis(
@@ -243,7 +252,7 @@ void drawModel() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     
     //turn on wireframe
-   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Draw the triangles !
     glDrawElements(
@@ -280,7 +289,7 @@ int main( void )
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Open a window and create its OpenGL context
-    window = glfwCreateWindow( 1024, 768, "Tutorial 09 - Loading with AssImp", NULL, NULL);
+    window = glfwCreateWindow( 1024, 768, "Silhouette Tool", NULL, NULL);
     if( window == NULL ){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         getchar();

@@ -50,7 +50,16 @@ void main()
         vec3 triDir = normalize(center - cameraPos);
         
         float dot = dot(s_norm, triDir);
-        
+        /*
+        gl_TessLevelOuter[0] = 8;
+        gl_TessLevelOuter[1] = 8;
+        gl_TessLevelOuter[2] = 8;
+        //gl_TessLevelOuter[3] = 1;
+
+        gl_TessLevelInner[0] = 8;
+        gl_TessLevelInner[1] = 8;
+        //gl_TessLevelInner[2] = 1;
+         */
         
         if(dot <= 0 && dot >= -.35){
             gl_TessLevelOuter[0] = 8;
@@ -61,7 +70,7 @@ void main()
             gl_TessLevelInner[0] = 8;
             gl_TessLevelInner[1] = 8;
             //gl_TessLevelInner[2] = 1;
-        } else if (dot < -.35 && dot >= -.7) {
+        } else if (dot < -.35 && dot >= -.6) {
             gl_TessLevelOuter[0] = 4;
             gl_TessLevelOuter[1] = 4;
             gl_TessLevelOuter[2] = 4;

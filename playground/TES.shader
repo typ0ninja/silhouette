@@ -85,7 +85,7 @@ void main()
         EyeDirection_tangentspace_tcs[1], EyeDirection_tangentspace_tcs[2], barycentric);
     
     // displace point along normal
-    p += normal * height * 0.1;
+    p -= normal * height * 0.1;
 
     // ----------------------------------------------------------------------
     // output patch point position in clip space

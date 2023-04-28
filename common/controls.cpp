@@ -13,6 +13,14 @@ glm::mat4 ViewMatrix;
 glm::mat4 ProjectionMatrix;
 glm::vec3 position;
 
+//uniform parameters
+bool cntl_wireframe = false;
+bool cntl_baseMeshWf = false;
+float cntl_tess_1 = 8.0;
+float cntl_tess_2 = 4.0;
+
+
+
 glm::mat4 getViewMatrix(){
 	return ViewMatrix;
 }
@@ -28,6 +36,13 @@ void initCamera() {
     position = glm::vec3( 0, 0, 5 );
 }
 
+bool getWFstatus(){
+    return cntl_wireframe;
+}
+
+bool getShowBaseModel(){
+    return cntl_baseMeshWf;
+}
 
 // Initial position : on +Z
 //glm::vec3 position = glm::vec3( 0, 0, 5 );
