@@ -69,23 +69,25 @@ void main()
         //gl_TessLevelInner[2] = 1;
          */
         
+        //int test = uni_params_block.tess_cnt_h;
+        
         if(dot <= 0 && dot >= uni_params_block.tess_thresh_h){
-            gl_TessLevelOuter[0] = 8;
-            gl_TessLevelOuter[1] = 8;
-            gl_TessLevelOuter[2] = 8;
+            gl_TessLevelOuter[0] = uni_params_block.tess_cnt_h;
+            gl_TessLevelOuter[1] = uni_params_block.tess_cnt_h;
+            gl_TessLevelOuter[2] = uni_params_block.tess_cnt_h;
             //gl_TessLevelOuter[3] = 1;
 
-            gl_TessLevelInner[0] = 8;
-            gl_TessLevelInner[1] = 8;
+            gl_TessLevelInner[0] = uni_params_block.tess_cnt_h;
+            gl_TessLevelInner[1] = uni_params_block.tess_cnt_h;
             //gl_TessLevelInner[2] = 1;
         } else if (dot < uni_params_block.tess_thresh_h && dot >= uni_params_block.tess_thresh_l) {
-            gl_TessLevelOuter[0] = 4;
-            gl_TessLevelOuter[1] = 4;
-            gl_TessLevelOuter[2] = 4;
+            gl_TessLevelOuter[0] = uni_params_block.tess_cnt_l;
+            gl_TessLevelOuter[1] = uni_params_block.tess_cnt_l;
+            gl_TessLevelOuter[2] = uni_params_block.tess_cnt_l;
             //gl_TessLevelOuter[3] = 1;
 
-            gl_TessLevelInner[0] = 4;
-            gl_TessLevelInner[1] = 4;
+            gl_TessLevelInner[0] = uni_params_block.tess_cnt_l;
+            gl_TessLevelInner[1] = uni_params_block.tess_cnt_l;
             //gl_TessLevelInner[2] = 1;
         
         } else {

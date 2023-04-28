@@ -178,6 +178,42 @@ void computeMatricesFromInputs(){
             sh_params.def_amt -= .04;
         }
     }
+    
+    // increase outer tess amt
+    if (glfwGetKey( window, GLFW_KEY_N ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_N ) == GLFW_RELEASE){
+            
+            sh_params.tess_cnt_h += 1;
+        }
+    }
+    
+    // decrease outer tess amt
+    if (glfwGetKey( window, GLFW_KEY_M ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_M ) == GLFW_RELEASE){
+            
+            sh_params.tess_cnt_h -= 1;
+        }
+    }
+    
+    // increase inner tess amt
+    if (glfwGetKey( window, GLFW_KEY_PERIOD ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_PERIOD ) == GLFW_RELEASE){
+            
+            sh_params.tess_cnt_l += 1;
+        }
+    }
+    
+    // decrease inner tess amt
+    if (glfwGetKey( window, GLFW_KEY_COMMA ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_COMMA ) == GLFW_RELEASE){
+            
+            sh_params.tess_cnt_l -= 1;
+        }
+    }
 
 	float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
 
