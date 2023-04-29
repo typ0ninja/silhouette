@@ -183,7 +183,7 @@ void computeMatricesFromInputs(){
         //negative edge
         if (glfwGetKey( window, GLFW_KEY_EQUAL ) == GLFW_RELEASE){
             
-            sh_params.def_amt += .04;
+            sh_params.def_amt += .01;
         }
     }
     
@@ -192,7 +192,7 @@ void computeMatricesFromInputs(){
         //negative edge
         if (glfwGetKey( window, GLFW_KEY_MINUS ) == GLFW_RELEASE){
             
-            sh_params.def_amt -= .04;
+            sh_params.def_amt -= .01;
         }
     }
     
