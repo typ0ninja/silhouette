@@ -64,8 +64,9 @@ struct model_paths{
 shader_buff tess_items;
 shader_buff reference_items;
 model_paths mpath_base = {"model/base/subd_sphere.obj", "model/base/uvmap.DDS", "model/base/wavenormal.bmp", "model/base/specular.DDS"};
-model_paths mpath_barrel = {};
+model_paths mpath_barrel = {"model/barrel/barrel_obj.obj", "model/barrel/Barrel_AlbedoTransparency.DDS", "model/barrel/Barrel_Normal.bmp", "model/barrel/Barrel_MetallicSmoothness.DDS"};
 model_paths mpath = mpath_base;
+//model_paths mpath = mpath_barrel;
 
 
 //Initialize the shaders for the model
