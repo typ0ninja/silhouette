@@ -67,6 +67,8 @@ model_paths mpath_base = {"model/base/subd_sphere.obj", "model/base/uvmap.DDS", 
 model_paths mpath_barrel = {"model/barrel/barrel_obj.obj", "model/barrel/Barrel_AlbedoTransparency.DDS", "model/barrel/Barrel_Normal.bmp", "model/barrel/Barrel_MetallicSmoothness.DDS"};
 model_paths mpath = mpath_base;
 //model_paths mpath = mpath_barrel;
+int prevModelNum = 1;
+
 
 
 //Initialize the shaders for the model
@@ -699,6 +701,23 @@ int main( void )
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        int cur_model = getModelNum();
+                if(cur_model == 1 && prevModelNum != cur_model){
+                    mpath = mpath_base;
+                    //reset
+                    initCamera();
+                    initModel();
+                    initRef();
+                    prevModelNum = cur_model;
+                } else if (cur_model == 2 && prevModelNum != cur_model){
+                    mpath = mpath_barrel;
+                    //reset
+                    initCamera();
+                    initModel();
+                    initRef();
+                    prevModelNum = cur_model;
+                }
         
         //draw the stuff
         drawModel();

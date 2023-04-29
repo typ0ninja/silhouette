@@ -8,6 +8,7 @@ glm::mat4 getProjectionMatrix();
 glm::vec3 getCameraPosition();
 bool getWFstatus();
 bool getShowBaseModel();
+int getModelNum();
 
 
 //uniform struct
