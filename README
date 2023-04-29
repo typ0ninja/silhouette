@@ -6,6 +6,9 @@ eid: emk943
 repo with alternate implementations:
 https://github.com/typ0ninja/silhouette/
 
+*** digital demo day ***
+I affirm, on my honor that I attended digital demo day
+
 please see phong_interp branch for implementation that works better for barrel but worse for sphere
 
 This tool is designed to load a model and tesselate and displace edges based on normal to
