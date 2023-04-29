@@ -20,6 +20,7 @@ uniform uni_params {
 } uni_params_block;
 
 uniform mat4 MVP;
+uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M;
 uniform mat3 MV3x3;
@@ -50,6 +51,17 @@ vec3 bilerpPatch(vec3 pos0, vec3 pos1, vec3 pos2, vec3 bary) {
     return (pos2 - pos0) * bary.y + xinterp;
 }
 
+
+vec2 interpolate2D(vec2 v0, vec2 v1, vec2 v2, vec3 bary)
+{
+    return vec2(bary.x) * v0 + vec2(bary.y) * v1 + vec2(bary.z) * v2;
+}
+
+vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2, vec3 bary)
+{
+    return vec3(bary.x) * v0 + vec3(bary.y) * v1 + vec3(bary.z) * v2;
+}
+
 void main()
 {
     // get barycentric coordinate
@@ -65,9 +77,10 @@ void main()
     vec2 texCoord = (t1 - t0) * barycentric.x + t0;
     texCoord = (t2 - t0) * barycentric.y + texCoord;
     UV = texCoord;
+    //UV = interpolate2D(t1, t2, t0, barycentric);
 
     // lookup texel at patch coordinate for height and scale + shift as desired
-    float height = texture(NormalTextureSampler, texCoord).y;// * 64.0 - 16.0;
+    float height = texture(NormalTextureSampler, texCoord.xy).x;// * 64.0 - 16.0;
 
     // ----------------------------------------------------------------------
     // retrieve control point position coordinates
@@ -78,20 +91,23 @@ void main()
     // compute patch surface normal
     vec4 uVec = p1 - p0;
     vec4 vVec = p2 - p0;
-    vec4 normal = normalize( vec4(cross(vVec.xyz, uVec.xyz), 0) );
-    
+    //vec4 normal = normalize( vec4(cross(vVec.xyz, uVec.xyz), 0) );
     
     vec3 n0 = vertexNormals_tcs[0];
     vec3 n1 = vertexNormals_tcs[1];
     vec3 n2 = vertexNormals_tcs[2];
-    //vec3 normal = bilerpPatch(n0, n1, n2, barycentric);
+    vec3 normal = normalize(bilerpPatch(n0, n1, n2, barycentric));
+    //normal = normalize(interpolate3D(n1, n2, n0, barycentric));
 
     // bilinearly interpolate position coordinate across patch
-    vec4 p = (p1 - p0) * barycentric.x + p0;
-    p = (p2 - p0) * barycentric.y + p;
+    //vec4 p = (p1 - p0) * barycentric.x + p0;
+    //p = (p2 - p0) * barycentric.y + p;
+    vec3 position = bilerpPatch(p0.xyz, p1.xyz, p2.xyz, barycentric);
     
     Position_worldspace_tes = bilerpPatch(Position_worldspace_tcs[0],
         Position_worldspace_tcs[1], Position_worldspace_tcs[2], barycentric);
+    //Position_worldspace_tes = interpolate3D(Position_worldspace_tcs[1],
+    //Position_worldspace_tcs[2], Position_worldspace_tcs[0], barycentric);
 
     LightDirection_tangentspace_tes = bilerpPatch(LightDirection_tangentspace_tcs[0],
         LightDirection_tangentspace_tcs[1], LightDirection_tangentspace_tcs[2], barycentric);
@@ -100,11 +116,13 @@ void main()
         EyeDirection_tangentspace_tcs[1], EyeDirection_tangentspace_tcs[2], barycentric);
     
     // displace point along normal
-    vec4 normalw = normal;//vec4(normal.xyz, 1.0);
-    p -= normalw * height * uni_params_block.def_amt;
+    vec4 normalw = vec4(-normal.xyz, 1.0);
+    position = Position_worldspace_tes + normal * height * uni_params_block.def_amt;
+    vec4 p = vec4(position, 1.0);
+    //p -= normalw * height * uni_params_block.def_amt;
 
     // ----------------------------------------------------------------------
     // output patch point position in clip space
     //gl_Position = projection * view * model * p;
-    gl_Position = MVP * p;
+    gl_Position = P * V * p;
 }

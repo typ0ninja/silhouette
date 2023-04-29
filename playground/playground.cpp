@@ -28,6 +28,7 @@ struct shader_buff{
     GLuint ModelVAOID;
     GLuint programID;
     GLuint MatrixID;
+    GLuint ProjectionMatrixID;
     GLuint ViewMatrixID;
     GLuint ModelMatrixID;
     GLuint ModelView3x3MatrixID;
@@ -77,6 +78,7 @@ void initModel() {
 
     // Get a handle for our "MVP" uniform
     tess_items.MatrixID = glGetUniformLocation(tess_items.programID, "MVP");
+    tess_items.ProjectionMatrixID = glGetUniformLocation(tess_items.programID, "P");
     tess_items.ViewMatrixID = glGetUniformLocation(tess_items.programID, "V");
     tess_items.ModelMatrixID = glGetUniformLocation(tess_items.programID, "M");
     tess_items.ModelView3x3MatrixID = glGetUniformLocation(tess_items.programID, "MV3x3");
@@ -185,6 +187,7 @@ void initRef() {
 
     // Get a handle for our "MVP" uniform
     reference_items.MatrixID = glGetUniformLocation(reference_items.programID, "MVP");
+    reference_items.ProjectionMatrixID = glGetUniformLocation(reference_items.programID, "P");
     reference_items.ViewMatrixID = glGetUniformLocation(reference_items.programID, "V");
     reference_items.ModelMatrixID = glGetUniformLocation(reference_items.programID, "M");
     reference_items.ModelView3x3MatrixID = glGetUniformLocation(reference_items.programID, "MV3x3");
@@ -305,7 +308,7 @@ void drawModel() {
     glUniformMatrix4fv(tess_items.MatrixID, 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(tess_items.ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
     glUniformMatrix4fv(tess_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-    glUniformMatrix4fv(tess_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+    glUniformMatrix4fv(tess_items.ProjectionMatrixID, 1, GL_FALSE, &ProjectionMatrix[0][0]);
     glUniformMatrix3fv(tess_items.ModelView3x3MatrixID, 1, GL_FALSE, &ModelView3x3Matrix[0][0]);
     glUniform3f(tess_items.cameraPosID, cameraPos.x, cameraPos.y, cameraPos.z);
 
@@ -472,7 +475,7 @@ void drawReference() {
     glUniformMatrix4fv(reference_items.MatrixID, 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(reference_items.ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
     glUniformMatrix4fv(reference_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-    glUniformMatrix4fv(reference_items.ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+    glUniformMatrix4fv(reference_items.ProjectionMatrixID, 1, GL_FALSE, &ProjectionMatrix[0][0]);
     glUniformMatrix3fv(reference_items.ModelView3x3MatrixID, 1, GL_FALSE, &ModelView3x3Matrix[0][0]);
     glUniform3f(reference_items.cameraPosID, cameraPos.x, cameraPos.y, cameraPos.z);
 
