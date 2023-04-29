@@ -20,8 +20,10 @@ in vec3 EyeDirection_tangentspace_vt[];
 
 // varying input from vertex shader
 in vec2 TexCoord[];
+in vec3 vertexNormals[];
 // varying output to evaluation shader
 out vec2 TextureCoord[];
+out vec3 vertexNormals_tcs[];
 
 out vec3 Position_worldspace_tcs[];
 out vec3 LightDirection_tangentspace_tcs[];
@@ -35,6 +37,7 @@ void main()
     // pass attributes through
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
     TextureCoord[gl_InvocationID] = TexCoord[gl_InvocationID];
+    vertexNormals_tcs[gl_InvocationID] = vertexNormals[gl_InvocationID];
     
     Position_worldspace_tcs[gl_InvocationID] = Position_worldspace_vt[gl_InvocationID];
     LightDirection_tangentspace_tcs[gl_InvocationID] = LightDirection_tangentspace_vt[gl_InvocationID];

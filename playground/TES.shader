@@ -31,6 +31,7 @@ uniform sampler2D SpecularTextureSampler;
 
 // received from Tessellation Control Shader - all texture coordinates for the patch vertices
 in vec2 TextureCoord[];
+in vec3 vertexNormals_tcs[];
 
 in vec3 Position_worldspace_tcs[];
 in vec3 LightDirection_tangentspace_tcs[];
@@ -78,6 +79,12 @@ void main()
     vec4 uVec = p1 - p0;
     vec4 vVec = p2 - p0;
     vec4 normal = normalize( vec4(cross(vVec.xyz, uVec.xyz), 0) );
+    
+    
+    vec3 n0 = vertexNormals_tcs[0];
+    vec3 n1 = vertexNormals_tcs[1];
+    vec3 n2 = vertexNormals_tcs[2];
+    //vec3 normal = bilerpPatch(n0, n1, n2, barycentric);
 
     // bilinearly interpolate position coordinate across patch
     vec4 p = (p1 - p0) * barycentric.x + p0;
@@ -93,7 +100,8 @@ void main()
         EyeDirection_tangentspace_tcs[1], EyeDirection_tangentspace_tcs[2], barycentric);
     
     // displace point along normal
-    p -= normal * height * uni_params_block.def_amt;
+    vec4 normalw = normal;//vec4(normal.xyz, 1.0);
+    p -= normalw * height * uni_params_block.def_amt;
 
     // ----------------------------------------------------------------------
     // output patch point position in clip space

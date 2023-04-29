@@ -124,6 +124,18 @@ void computeMatricesFromInputs(){
         }
     }
     
+    // Toggle Wireframe on model
+    if (glfwGetKey( window, GLFW_KEY_2 ) == GLFW_PRESS){
+        //negative edge for toggle
+        if (glfwGetKey( window, GLFW_KEY_2 ) == GLFW_RELEASE){
+            if(cntl_baseMeshWf){
+                cntl_baseMeshWf = false;
+            } else {
+                cntl_baseMeshWf = true;
+            }
+        }
+    }
+    
     // increase outer tess angle
     if (glfwGetKey( window, GLFW_KEY_K ) == GLFW_PRESS){
         //negative edge

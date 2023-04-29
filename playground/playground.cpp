@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <string>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -52,8 +53,18 @@ struct shader_buff{
     uni_params curParam;
 };
 
+struct model_paths{
+    char * obj;
+    char * diffuse;
+    char * normal;
+    char * spec;
+};
+
 shader_buff tess_items;
 shader_buff reference_items;
+model_paths mpath_base = {"model/base/subd_sphere.obj", "model/base/uvmap.DDS", "model/base/wavenormal.bmp", "model/base/specular.DDS"};
+model_paths mpath_barrel = {};
+model_paths mpath = mpath_base;
 
 
 //Initialize the shaders for the model
@@ -88,9 +99,9 @@ void initModel() {
     glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, tess_items.paramStructbuffer);
     
     // Load the texture
-    tess_items.DiffuseTexture = loadDDS("uvmap.DDS");
-    tess_items.NormalTexture = loadBMP_custom("wavenormal.bmp");
-    tess_items.SpecularTexture = loadDDS("specular.DDS");
+    tess_items.DiffuseTexture = loadDDS(mpath.diffuse);
+    tess_items.NormalTexture = loadBMP_custom(mpath.normal);
+    tess_items.SpecularTexture = loadDDS(mpath.spec);
     
     
     /*
@@ -110,7 +121,7 @@ void initModel() {
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
     //bool res = loadAssImp("subd_sphere.obj", indices, vertices, uvs, normals);
-    bool res = loadOBJ("subd_sphere.obj", vertices, uvs, normals);
+    bool res = loadOBJ(mpath.obj, vertices, uvs, normals);
     //bool res = loadOBJ("barrel_obj.obj", vertices, uvs, normals);
     std::vector<glm::vec3> tangents;
     std::vector<glm::vec3> bitangents;
@@ -196,9 +207,9 @@ void initRef() {
 //    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, reference_items.paramStructbuffer);
     
     // Load the texture
-    reference_items.DiffuseTexture = loadDDS("uvmap.DDS");
-    reference_items.NormalTexture = loadBMP_custom("wavenormal.bmp");
-    reference_items.SpecularTexture = loadDDS("specular.DDS");
+    reference_items.DiffuseTexture = loadDDS(mpath.diffuse);
+    reference_items.NormalTexture = loadBMP_custom(mpath.normal);
+    reference_items.SpecularTexture = loadDDS(mpath.spec);
     
     
     
@@ -218,7 +229,7 @@ void initRef() {
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
     //bool res = loadAssImp("subd_sphere.obj", indices, vertices, uvs, normals);
-    bool res = loadOBJ("subd_sphere.obj", vertices, uvs, normals);
+    bool res = loadOBJ(mpath.obj, vertices, uvs, normals);
     //bool res = loadOBJ("barrel_obj.obj", vertices, uvs, normals);
     std::vector<glm::vec3> tangents;
     std::vector<glm::vec3> bitangents;
@@ -687,7 +698,9 @@ int main( void )
         
         //draw the stuff
         drawModel();
-        drawReference();
+        if(getShowBaseModel()){
+            drawReference();
+        }
         
         // Swap buffers
         glfwSwapBuffers(window);

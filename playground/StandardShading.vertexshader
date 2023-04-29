@@ -14,6 +14,7 @@ out vec3 EyeDirection_tangentspace_vt;
 
 // send coords to TCS (will be UV_vt later)
 out vec2 TexCoord;
+out vec3 vertexNormals;
 
 // Values that stay constant for the whole mesh.
 uniform mat4 MVP;
@@ -42,11 +43,13 @@ void main(){
     
     // UV of the vertex. No special space for this one.
     TexCoord = vertexUV;
-    
+        
     // model to camera = ModelView
     vec3 vertexTangent_cameraspace = MV3x3 * vertexTangent_modelspace;
     vec3 vertexBitangent_cameraspace = MV3x3 * vertexBitangent_modelspace;
     vec3 vertexNormal_cameraspace = MV3x3 * vertexNormal_modelspace;
+    
+    vertexNormals = vertexNormal_modelspace;
     
     mat3 TBN = transpose(mat3(
         vertexTangent_cameraspace,
