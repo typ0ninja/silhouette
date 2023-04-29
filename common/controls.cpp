@@ -16,6 +16,7 @@ glm::vec3 position;
 //uniform parameters
 bool cntl_wireframe = false;
 bool cntl_baseMeshWf = false;
+int modelnum = 1;
 uni_params sh_params = { -.35, -.6, .1, 8, 4 };
 
 glm::mat4 getViewMatrix(){
@@ -40,6 +41,10 @@ bool getWFstatus(){
 
 bool getShowBaseModel(){
     return cntl_baseMeshWf;
+}
+
+int getModelNum(){
+    return modelnum;
 }
 
 uni_params getParam(){
@@ -160,7 +165,7 @@ void computeMatricesFromInputs(){
         //negative edge
         if (glfwGetKey( window, GLFW_KEY_P ) == GLFW_RELEASE){
             
-            sh_params.tess_thresh_l += .04;
+            sh_params.tess_thresh_l -= .04;
         }
     }
     
@@ -169,7 +174,7 @@ void computeMatricesFromInputs(){
         //negative edge
         if (glfwGetKey( window, GLFW_KEY_O ) == GLFW_RELEASE){
             
-            sh_params.tess_thresh_l -= .04;
+            sh_params.tess_thresh_l += .04;
         }
     }
     
@@ -196,7 +201,7 @@ void computeMatricesFromInputs(){
         //negative edge
         if (glfwGetKey( window, GLFW_KEY_N ) == GLFW_RELEASE){
             
-            sh_params.tess_cnt_h += 1;
+            sh_params.tess_cnt_h -= 1;
         }
     }
     
@@ -205,7 +210,7 @@ void computeMatricesFromInputs(){
         //negative edge
         if (glfwGetKey( window, GLFW_KEY_M ) == GLFW_RELEASE){
             
-            sh_params.tess_cnt_h -= 1;
+            sh_params.tess_cnt_h += 1;
         }
     }
     
@@ -224,6 +229,22 @@ void computeMatricesFromInputs(){
         if (glfwGetKey( window, GLFW_KEY_COMMA ) == GLFW_RELEASE){
             
             sh_params.tess_cnt_l -= 1;
+        }
+    }
+    
+    if (glfwGetKey( window, GLFW_KEY_3 ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_3 ) == GLFW_RELEASE){
+            
+            modelnum = 1;
+        }
+    }
+    
+    if (glfwGetKey( window, GLFW_KEY_4 ) == GLFW_PRESS){
+        //negative edge
+        if (glfwGetKey( window, GLFW_KEY_4 ) == GLFW_RELEASE){
+            
+            modelnum = 2;
         }
     }
 
