@@ -170,7 +170,7 @@ void initRef() {
     glBindVertexArray(reference_items.ModelVAOID);
 
     // Create and compile our GLSL program from the shaders
-    reference_items.programID = LoadShaders( "StandardShading.vertexshader", "StandardShading.fragmentshader", "TCS.shader", "TES.shader" );
+    reference_items.programID = LoadShaders( "wireframe.vertexshader", "wireframe.fragmentshader");
 
     // Get a handle for our "MVP" uniform
     reference_items.MatrixID = glGetUniformLocation(reference_items.programID, "MVP");
@@ -181,19 +181,19 @@ void initRef() {
     
     //uniform struct stuff
     // Bind the uniform block to a binding point
-    GLuint bindingPoint = 0;
-    reference_items.paramStructID = glGetUniformBlockIndex(reference_items.programID, "uni_params");
-    glUniformBlockBinding(reference_items.programID, reference_items.paramStructID, bindingPoint);
+//    GLuint bindingPoint = 0;
+//    reference_items.paramStructID = glGetUniformBlockIndex(reference_items.programID, "uni_params");
+//    glUniformBlockBinding(reference_items.programID, reference_items.paramStructID, bindingPoint);
 
     // Create a buffer object and allocate memory for the uniform block data
     //GLuint ubo;
-    glGenBuffers(1, &reference_items.paramStructbuffer);
-    glBindBuffer(GL_UNIFORM_BUFFER, reference_items.paramStructbuffer);
-    reference_items.curParam = getParam();
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(uni_params), &reference_items.curParam, GL_STATIC_DRAW);
-
-    // Bind the buffer object to the binding point
-    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, reference_items.paramStructbuffer);
+//    glGenBuffers(1, &reference_items.paramStructbuffer);
+//    glBindBuffer(GL_UNIFORM_BUFFER, reference_items.paramStructbuffer);
+//    reference_items.curParam = getParam();
+//    glBufferData(GL_UNIFORM_BUFFER, sizeof(uni_params), &reference_items.curParam, GL_STATIC_DRAW);
+//
+//    // Bind the buffer object to the binding point
+//    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, reference_items.paramStructbuffer);
     
     // Load the texture
     reference_items.DiffuseTexture = loadDDS("uvmap.DDS");
@@ -492,28 +492,28 @@ void drawReference() {
     
     
     //update input vals
-    reference_items.curParam = getParam();
+    //reference_items.curParam = getParam();
     
     // Bind the buffer object to the binding point
-    glBindBuffer(GL_UNIFORM_BUFFER, reference_items.paramStructbuffer);
+    //glBindBuffer(GL_UNIFORM_BUFFER, reference_items.paramStructbuffer);
     
     // Map the buffer memory to a pointer that can be written to
-    GLvoid* p = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(uni_params), GL_MAP_WRITE_BIT);
-    if(p == NULL){
-        printf("P is null");
-    }
-    uni_params* ubo_data = static_cast<uni_params*>(p);
-    if(ubo_data == NULL){
-        printf("null ubo data");
-    }
-    ubo_data->tess_thresh_h = reference_items.curParam.tess_thresh_h;
-    
-    ubo_data->tess_thresh_l = reference_items.curParam.tess_thresh_l;
-    ubo_data->def_amt = reference_items.curParam.def_amt;
-    ubo_data->tess_cnt_h = reference_items.curParam.tess_cnt_h;
-    ubo_data->tess_cnt_l = reference_items.curParam.tess_cnt_l;
-    
-    glUnmapBuffer(GL_UNIFORM_BUFFER);
+//    GLvoid* p = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(uni_params), GL_MAP_WRITE_BIT);
+//    if(p == NULL){
+//        printf("P is null");
+//    }
+//    uni_params* ubo_data = static_cast<uni_params*>(p);
+//    if(ubo_data == NULL){
+//        printf("null ubo data");
+//    }
+//    ubo_data->tess_thresh_h = reference_items.curParam.tess_thresh_h;
+//
+//    ubo_data->tess_thresh_l = reference_items.curParam.tess_thresh_l;
+//    ubo_data->def_amt = reference_items.curParam.def_amt;
+//    ubo_data->tess_cnt_h = reference_items.curParam.tess_cnt_h;
+//    ubo_data->tess_cnt_l = reference_items.curParam.tess_cnt_l;
+//
+//    glUnmapBuffer(GL_UNIFORM_BUFFER);
      
 
 
@@ -580,16 +580,18 @@ void drawReference() {
     // Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, reference_items.elementbuffer);
     
-    if(getWFstatus()){
-        //turn on wireframe
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    } else {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+//    if(getWFstatus()){
+//        //turn on wireframe
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//    } else {
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//    }
 
     // Draw the triangles !
     glDrawElements(
-        GL_PATCHES,      // mode
+        GL_TRIANGLES,      // mode
         reference_items.indices.size(),    // count
         GL_UNSIGNED_SHORT,   // type
         (void*)0           // element array buffer offset
@@ -662,6 +664,7 @@ int main( void )
 
     initCamera();
     initModel();
+    initRef();
 
     // For speed computation
     double lastTime = glfwGetTime();
@@ -681,8 +684,10 @@ int main( void )
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        
+        //draw the stuff
         drawModel();
+        drawReference();
         
         // Swap buffers
         glfwSwapBuffers(window);
